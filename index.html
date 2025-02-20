@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor WhatsApp para CSV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+   body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.6;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+h1, h2, h3 {
+  color: #0f172a;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.container {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+.section {
+  margin-bottom: 32px;
+  padding: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  transition: all 0.2s ease;
+}
+.section:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.04);
+  transform: translateY(-1px);
+}
+/* Estilo GitHub-like para todos os botões */
+button, .file-input-label, .download-btn {
+  background-color: #f6f8fa;
+  color: #24292f;
+  border: 1px solid rgba(27, 31, 36, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-size: 14px;
+  padding: 8px 16px;
+  box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04);
+}
+button:hover, .file-input-label:hover, .download-btn:hover {
+  background-color: #f3f4f6;
+  border-color: rgba(27, 31, 36, 0.15);
+  box-shadow: 0 1px 2px rgba(27, 31, 36, 0.1);
+}
+button:active, .file-input-label:active, .download-btn:active {
+  background-color: #ebecf0;
+  box-shadow: inset 0 1px 0 rgba(27, 31, 36, 0.1);
+}
+button:disabled, .file-input-label.disabled {
+  background-color: #f6f8fa;
+  color: #8c959f;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Estilo específico para o botão de processamento */
+#processButton {
+  background-color: #6c8eef;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+#processButton:hover:not(:disabled) {
+  background-color: #5a7dde;
+}
+
+#processButton:disabled {
+  background-color: #bcc5d8;
+  color: white;
+}
+
+/* Estilo personalizado para input de arquivo */
+.file-input-container {
+  position: relative;
+  display: inline-block;
+  margin-right: 10px;
+}
+.file-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.file-input-label {
+  display: inline-block;
+}
+.file-name {
+  margin-left: 10px;
+  font-size: 14px;
+  color: #57606a;
+}
+/* Outros estilos */
+input, select {
+  padding: 8px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+  font-size: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: #0969da;
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.message-cell {
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.message-cell:hover {
+  white-space: normal;
+  word-break: break-word;
+}
+.success {
+  background-color: #dafbe1;
+  color: #24292f;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(31, 147, 97, 0.15);
+}
+.error {
+  background-color: #ffebe9;
+  color: #24292f;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255, 129, 130, 0.15);
+}
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  margin-top: 16px;
+}
+.download-btn:before {
+  content: "⬇️";
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Melhorias visuais para a seção de filtros */
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.preview-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background-color: #fff;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+}
+.stat-box {
+  background-color: white;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #d0d7de;
+  text-align: center;
+  box-shadow: 0 1px 0 rgba(27, 31, 36, 0.04);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 140px;
+}
+.stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0969da;
+  margin: 12px 0;
+  line-height: 1;
+}
+.toggle-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+  margin-right: 16px;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: .3s;
+  border-radius: 28px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #0969da;
+}
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+.toggle-container span {
+  font-weight: 500;
+  color: #24292f;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+#applyFiltersBtn, #resetFiltersBtn {
+  padding: 8px 20px;
+}
+
+#applyFiltersBtn {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+
+#applyFiltersBtn:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+#resetFiltersBtn {
+  background-color: #fff;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+#resetFiltersBtn:hover {
+  background-color: #f8fafc;
+  color: #475569;
+}
+
+@media (max-width: 768px) {
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Conversor WhatsApp JS para CSV</h1>
+    
+    <div class="section">
+      <h2>1. Selecione seu arquivo</h2>
+      <p>Escolha o arquivo contacts.js ou JSON que contém as conversas do WhatsApp</p>
+      <div class="file-input-container">
+        <label class="file-input-label">
+          Escolher Arquivo
+          <input type="file" id="fileInput" accept=".js,.json" class="file-input">
+        </label>
+      </div>
+      <span id="fileName" class="file-name">Nenhum arquivo selecionado</span>
+      <div style="margin-top: 15px;">
+        <button id="processButton" disabled>Processar Arquivo</button>
+      </div>
+      <div id="status" style="margin-top: 10px;"></div>
+    </div>
+    
+    <div id="resultsContainer" style="display:none;">
+      <div class="section">
+        <h2>2. Filtrar Dados</h2>
+        <div class="toggle-container">
+          <label class="toggle-switch">
+            <input type="checkbox" id="anonymizeToggle">
+            <span class="slider"></span>
+          </label>
+          <span>Anonimizar números de telefone</span>
+        </div>
+        <div class="filters">
+          <div class="filter-group">
+            <label for="clientFilter">Cliente:</label>
+            <select id="clientFilter">
+              <option value="">Todos os clientes</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="dateFromFilter">De:</label>
+            <input type="date" id="dateFromFilter">
+          </div>
+          <div class="filter-group">
+            <label for="dateToFilter">Até:</label>
+            <input type="date" id="dateToFilter">
+          </div>
+          <div class="filter-group">
+            <label for="keywordFilter">Palavra-chave:</label>
+            <input type="text" id="keywordFilter" placeholder="Buscar nas mensagens...">
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button id="applyFiltersBtn">Aplicar Filtros</button>
+          <button id="resetFiltersBtn">Limpar Filtros</button>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h2>3. Prévia dos Dados</h2>
+        <div id="resultsInfo"></div>
+        <div id="previewContainer" class="preview-container"></div>
+        <div id="downloadContainer"></div>
+      </div>
+      
+      <div class="section">
+        <h2>4. Estatísticas</h2>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div>Total de Contatos</div>
+            <div id="totalContacts" class="stat-value">0</div>
+          </div>
+          <div class="stat-box">
+            <div>Total de Mensagens</div>
+            <div id="totalMessages" class="stat-value">0</div>
+          </div>
+          <div class="stat-box">
+            <div>Mensagens do Suporte</div>
+            <div id="supportMessages" class="stat-value">0</div>
+          </div>
+          <div class="stat-box">
+            <div>Mensagens dos Clientes</div>
+            <div id="clientMessages" class="stat-value">0</div>
+          </div>
+        </div>
+        
+        <h3>Top 5 Clientes por Volume de Mensagens</h3>
+        <table id="topClientsTable">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Total</th>
+              <th>Enviadas</th>
+              <th>Recebidas</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        
+        <div id="statsDownloadContainer" style="margin-top: 20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Elementos do DOM
+    const fileInput = document.getElementById('fileInput');
+    const fileName = document.getElementById('fileName');
+    const processButton = document.getElementById('processButton');
+    const status = document.getElementById('status');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const resultsInfo = document.getElementById('resultsInfo');
+    const previewContainer = document.getElementById('previewContainer');
+    const downloadContainer = document.getElementById('downloadContainer');
+    const clientFilter = document.getElementById('clientFilter');
+    const dateFromFilter = document.getElementById('dateFromFilter');
+    const dateToFilter = document.getElementById('dateToFilter');
+    const keywordFilter = document.getElementById('keywordFilter');
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    const totalContacts = document.getElementById('totalContacts');
+    const totalMessages = document.getElementById('totalMessages');
+    const supportMessages = document.getElementById('supportMessages');
+    const clientMessages = document.getElementById('clientMessages');
+    const topClientsTable = document.getElementById('topClientsTable').querySelector('tbody');
+    const statsDownloadContainer = document.getElementById('statsDownloadContainer');
+    const anonymizeToggle = document.getElementById('anonymizeToggle');
+    
+    // Variáveis globais
+    let allContacts = [];
+    let processedData = [];
+    let filteredData = [];
+    let shouldAnonymize = false;
+    let originalClientNumbers = new Map(); // Para armazenar os números originais
+    let stats = {
+      totalMessages: 0,
+      supportMessages: 0,
+      clientMessages: 0,
+      clientStats: {}
+    };
+    
+    // Atualizar nome do arquivo quando selecionado
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files.length) {
+        fileName.textContent = fileInput.files[0].name;
+        processButton.disabled = false;
+      } else {
+        fileName.textContent = 'Nenhum arquivo selecionado';
+        processButton.disabled = true;
+      }
+      status.textContent = '';
+      status.className = '';
+    });
+    
+    // Toggle de anonimização
+    anonymizeToggle.addEventListener('change', function() {
+      shouldAnonymize = anonymizeToggle.checked;
+      updatePreview();
+      updateStats(); // Atualizar estatísticas quando o toggle mudar
+    });
+    
+    // Processar arquivo quando o botão for clicado
+    processButton.addEventListener('click', async function() {
+      if (!fileInput.files || !fileInput.files.length) {
+        showStatus('Selecione um arquivo primeiro', 'error');
+        return;
+      }
+      
+      try {
+        // Preparar UI
+        processButton.disabled = true;
+        status.textContent = 'Processando...';
+        status.className = '';
+        resultsContainer.style.display = 'none';
+        
+        // Ler arquivo
+        const file = fileInput.files[0];
+        const fileContent = await readFile(file);
+        
+        // Detectar formato e extrair dados
+        // Verifica se é formato JavaScript (window.dict=)
+        if (fileContent.includes("window.dict=")) {
+          const startIndex = fileContent.indexOf("window.dict=");
+          if (startIndex === -1) {
+            throw new Error("Formato inválido: Não encontrei 'window.dict=' no arquivo");
+          }
+          
+          let jsonText = fileContent.substring(startIndex + "window.dict=".length);
+          allContacts = Function('return ' + jsonText)();
+        } 
+        // Caso contrário, assume que é JSON direto
+        else {
+          try {
+            allContacts = JSON.parse(fileContent);
+          } catch (e) {
+            throw new Error("Formato de arquivo inválido: não é um JSON válido nem um arquivo JS esperado");
+          }
+        }
+        
+        if (!allContacts || typeof allContacts !== 'object') {
+          throw new Error("Não consegui extrair dados válidos do arquivo");
+        }
+        
+        // Processar dados
+        processedData = processConversations(allContacts);
+        filteredData = [...processedData];
+        
+        // Calcular estatísticas
+        calculateStats();
+        
+        // Mostrar resultados
+        showResults();
+        
+        showStatus('Arquivo processado com sucesso!', 'success');
+        
+      } catch (error) {
+        console.error(error);
+        showStatus('Erro: ' + error.message, 'error');
+      } finally {
+        processButton.disabled = false;
+      }
+    });
+    
+    // Aplicar filtros
+    applyFiltersBtn.addEventListener('click', function() {
+      applyFilters();
+    });
+    
+    // Resetar filtros
+    resetFiltersBtn.addEventListener('click', function() {
+      clientFilter.value = '';
+      dateFromFilter.value = '';
+      dateToFilter.value = '';
+      keywordFilter.value = '';
+      
+      filteredData = [...processedData];
+      updatePreview();
+    });
+    
+    // Função para ler arquivo
+    function readFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = e => reject(new Error('Erro ao ler o arquivo'));
+        reader.readAsText(file);
+      });
+    }
+    
+    // Processar conversas - adaptado para lidar com ambos os formatos
+    function processConversations(contacts) {
+      const result = [];
+      originalClientNumbers = new Map();
+      
+      // Verifica se contacts é um array (formato antigo) ou um objeto (novo formato JSON)
+      const isArray = Array.isArray(contacts);
+      
+      // Se for um objeto (formato JSON), converte para array para processamento
+      const contactsArray = isArray ? contacts : Object.entries(contacts).map(([key, value]) => {
+        // Adiciona o número do telefone ao objeto de contato para formatos JSON
+        return { ...value, phoneNumber: key };
+      });
+      
+      contactsArray.forEach((contact, index) => {
+        // Verifica se há mensagens e se não estão vazias
+        if (!contact.messages || (Array.isArray(contact.messages) && !contact.messages.length) || 
+            (typeof contact.messages === 'object' && Object.keys(contact.messages).length === 0)) return;
+        
+        // Extrair número do cliente
+        let clientNumber = extractClientNumber(contact);
+        originalClientNumbers.set(index + 1, clientNumber);
+        
+        // Formatar mensagens - tratando formatos diferentes
+        let formattedMessages = '';
+        
+        // Processa mensagens baseado no formato
+        if (Array.isArray(contact.messages)) {
+          // Formato antigo - messages é um array
+          contact.messages.forEach(msg => {
+            if (!msg.message || !msg.message.trim()) return;
+            
+            const date = new Date(msg.timesStamp);
+            const formattedDate = formatDate(date);
+            const sender = msg.sender === 'you' ? 'Suporte' : 'Cliente';
+            
+            const formattedMessage = `${formattedDate} - ${sender}: ${msg.message}`;
+            
+            if (formattedMessages) formattedMessages += '\n';
+            formattedMessages += formattedMessage;
+          });
+        } else {
+          // Novo formato - messages é um objeto com IDs como chaves
+          Object.values(contact.messages).forEach(msg => {
+            if (!msg.data) return;
+            
+            const date = new Date(msg.timestamp * 1000); // Converter timestamp para milissegundos
+            const formattedDate = formatDate(date);
+            const sender = msg.from_me ? 'Suporte' : 'Cliente';
+            
+            const formattedMessage = `${formattedDate} - ${sender}: ${msg.data}`;
+            
+            if (formattedMessages) formattedMessages += '\n';
+            formattedMessages += formattedMessage;
+          });
+        }
+        
+        if (formattedMessages) {
+          result.push({
+            id: index + 1,
+            cliente: clientNumber,
+            mensagem: formattedMessages,
+            status: ''
+          });
+        }
+      });
+      
+      return result;
+    }
+    
+    // Extrair número do cliente - adaptado para lidar com ambos os formatos
+    function extractClientNumber(contact) {
+      // Se o contato já tem um phoneNumber (do formato JSON), use-o
+      if (contact.phoneNumber) {
+        // Remove "@s.whatsapp.net" se existir
+        return contact.phoneNumber.replace(/@s\.whatsapp\.net$/, '');
+      }
+      
+      // Formato antigo
+      if (contact.grpMembers) {
+        const match = contact.grpMembers.match(/\+\d+/);
+        if (match) return match[0];
+      }
+      
+      // Se o nome parece ser um número de telefone com "@s.whatsapp.net"
+      if (contact.name && contact.name.includes('@s.whatsapp.net')) {
+        return contact.name.replace(/@s\.whatsapp\.net$/, '');
+      }
+      
+      return contact.name || 'Cliente sem nome';
+    }
+    
+    // Anonimizar número de telefone - versão corrigida
+    function anonymizePhoneNumber(phoneNumber) {
+      // Verifica se o número começa com + ou é apenas numérico
+      const isPhoneNumber = phoneNumber.startsWith('+') || /^\d+$/.test(phoneNumber);
+      
+      if (!isPhoneNumber) {
+        return phoneNumber; // Se não for um número de telefone, retornar como está
+      }
+      
+      // Se o número não começa com +, consideramos como um número telefônico sem código de país
+      if (!phoneNumber.startsWith('+')) {
+        // Para números sem +, consideramos que os primeiros 2 dígitos são o DDD
+        if (phoneNumber.length >= 4) { // Pelo menos DDD + 2 dígitos
+          const areaCode = phoneNumber.substring(0, 2);
+          const numberStart = phoneNumber.substring(2, 4);
+          const hiddenPart = '*'.repeat(phoneNumber.length - 4);
+          return `${areaCode}${numberStart}${hiddenPart}`;
+        }
+        // Número muito curto, apenas mascara os últimos dígitos se possível
+        else if (phoneNumber.length > 2) {
+          const visiblePart = phoneNumber.substring(0, 2);
+          const hiddenPart = '*'.repeat(phoneNumber.length - 2);
+          return `${visiblePart}${hiddenPart}`;
+        }
+        return phoneNumber; // Número muito curto para anonimizar
+      }
+      
+      // Caso original - número com formato internacional (+DDI)
+      const phoneRegex = /^(\+\d{1,3})(\d{2})(\d{2,})$/;
+      const match = phoneNumber.match(phoneRegex);
+      
+      if (match) {
+        const countryCode = match[1];  // DDI
+        const areaCode = match[2];     // DDD
+        const number = match[3];       // Resto do número
+        
+        // Mostrar DDI, DDD e 2 primeiros dígitos, o resto como *
+        const visiblePart = number.substring(0, 2);
+        const hiddenPart = '*'.repeat(number.length - 2);
+        
+        return `${countryCode}${areaCode}${visiblePart}${hiddenPart}`;
+      }
+      
+      // Se não conseguir extrair seguindo o padrão, tenta um método simplificado
+      if (phoneNumber.length > 4) {
+        const visiblePart = phoneNumber.substring(0, phoneNumber.length - 4);
+        const hiddenPart = '****';
+        return `${visiblePart}${hiddenPart}`;
+      }
+      
+      // Se tudo falhar, retorna como está
+      return phoneNumber;
+    }
+    
+    // Formatar data
+    function formatDate(date) {
+      if (!(date instanceof Date) || isNaN(date)) return 'Data inválida';
+      
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+    
+    // Calcular estatísticas - adaptado para lidar com ambos os formatos
+    function calculateStats() {
+      stats = {
+        totalMessages: 0,
+        supportMessages: 0,
+        clientMessages: 0,
+        clientStats: {}
+      };
+      
+      // Verifica o formato dos contatos
+      const isArray = Array.isArray(allContacts);
+      const contactsArray = isArray ? allContacts : Object.entries(allContacts).map(([key, value]) => {
+        return { ...value, phoneNumber: key };
+      });
+      
+      contactsArray.forEach(contact => {
+        if (!contact.messages) return;
+        
+        const clientNumber = extractClientNumber(contact);
+        
+        if (!stats.clientStats[clientNumber]) {
+          stats.clientStats[clientNumber] = {
+            total: 0,
+            sent: 0,
+            received: 0
+          };
+        }
+        
+        // Processa mensagens baseado no formato
+        if (Array.isArray(contact.messages)) {
+          // Formato antigo - messages é um array
+          contact.messages.forEach(msg => {
+            if (!msg.message || !msg.message.trim()) return;
+            
+            stats.totalMessages++;
+            
+            if (msg.sender === 'you') {
+              stats.supportMessages++;
+              stats.clientStats[clientNumber].sent++;
+            } else {
+              stats.clientMessages++;
+              stats.clientStats[clientNumber].received++;
+            }
+            
+            stats.clientStats[clientNumber].total++;
+          });
+        } else {
+          // Novo formato - messages é um objeto com IDs como chaves
+          Object.values(contact.messages).forEach(msg => {
+            if (!msg.data) return;
+            
+            stats.totalMessages++;
+            
+            if (msg.from_me) {
+              stats.supportMessages++;
+              stats.clientStats[clientNumber].sent++;
+            } else {
+              stats.clientMessages++;
+              stats.clientStats[clientNumber].received++;
+            }
+            
+            stats.clientStats[clientNumber].total++;
+          });
+        }
+      });
+    }
+    
+    // Mostrar resultados
+    function showResults() {
+      // Mostrar container de resultados
+      resultsContainer.style.display = 'block';
+      
+      // Popular select de clientes
+      populateClientFilter();
+      
+      // Mostrar prévia
+      updatePreview();
+      
+      // Atualizar estatísticas
+      updateStats();
+    }
+    
+    // Popular filtro de clientes
+    function populateClientFilter() {
+      // Limpar opções existentes (exceto a primeira)
+      while (clientFilter.options.length > 1) {
+        clientFilter.remove(1);
+      }
+      
+      // Adicionar cada cliente como opção
+      const clients = Object.keys(stats.clientStats);
+      clients.sort().forEach(client => {
+        // Detecta se é um número de telefone, não apenas se começa com +
+        const isPhoneNumber = client.startsWith('+') || /^\d+$/.test(client);
+        const displayClient = shouldAnonymize && isPhoneNumber ? 
+                              anonymizePhoneNumber(client) : client;
+                              
+        const option = document.createElement('option');
+        option.value = client; // Valor original para filtrar
+        option.textContent = `${displayClient} (${stats.clientStats[client].total})`;
+        clientFilter.appendChild(option);
+      });
+    }
+    
+    // Atualizar prévia com dados filtrados
+    function updatePreview() {
+      // Limpar contêiner de prévia
+      previewContainer.innerHTML = '';
+      
+      if (!filteredData.length) {
+        previewContainer.innerHTML = '<p>Nenhum resultado encontrado com os filtros aplicados.</p>';
+        resultsInfo.textContent = 'Nenhum resultado encontrado';
+        downloadContainer.innerHTML = '';
+        return;
+      }
+      
+      // Atualizar informação de resultados
+      resultsInfo.textContent = `Exibindo ${filteredData.length} de ${processedData.length} conversas`;
+      
+      // Criar tabela para preview
+      const table = document.createElement('table');
+      
+      // Cabeçalho
+      const thead = document.createElement('thead');
+      thead.innerHTML = `
+         <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Mensagem (prévia)</th>
+          <th>Status</th>
+        </tr>
+      `;
+      table.appendChild(thead);
+      
+      // Corpo da tabela
+      const tbody = document.createElement('tbody');
+      
+      // Mostrar no máximo 10 registros
+      const displayData = filteredData.slice(0, 10);
+      
+      displayData.forEach(row => {
+        const tr = document.createElement('tr');
+        
+        // Truncar mensagens longas para preview
+        let previewMessage = row.mensagem;
+        if (previewMessage.length > 150) {
+          previewMessage = previewMessage.substring(0, 150) + '...';
+        }
+        
+        // Decidir se mostra o cliente anonimizado ou não
+        const isPhoneNumber = row.cliente.startsWith('+') || /^\d+$/.test(row.cliente);
+        const displayClient = shouldAnonymize && isPhoneNumber ? 
+                              anonymizePhoneNumber(row.cliente) : row.cliente;
+        
+        tr.innerHTML = `
+          <td>${row.id}</td>
+          <td>${displayClient}</td>
+          <td class="message-cell">${previewMessage.replace(/\n/g, '<br>')}</td>
+          <td>${row.status}</td>
+        `;
+        
+        tbody.appendChild(tr);
+      });
+      
+      table.appendChild(tbody);
+      previewContainer.appendChild(table);
+      
+      // Mostrar mais informações se tiver mais registros
+      if (filteredData.length > 10) {
+        const moreInfo = document.createElement('p');
+        moreInfo.textContent = `Mostrando 10 de ${filteredData.length} registros. Faça o download para ver todos.`;
+        previewContainer.appendChild(moreInfo);
+      }
+      
+      // Criar link para download
+      createDownloadLink();
+      
+      // Atualizar o dropdown se necessário (para refletir o estado de anonimização)
+      populateClientFilter();
+    }
+    
+    // Criar link para download
+    function createDownloadLink() {
+      const csvContent = generateCSV(filteredData);
+      
+      const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      
+      downloadContainer.innerHTML = '';
+      const a = document.createElement('a');
+      a.href = url;
+      a.className = 'download-btn';
+      a.download = 'conversas_whatsapp.csv';
+      a.textContent = 'Baixar CSV';
+      
+      downloadContainer.appendChild(a);
+      
+      // Link para estatísticas
+      const statsBlob = new Blob([generateStatsCSV()], {type: 'text/csv;charset=utf-8;'});
+      const statsUrl = URL.createObjectURL(statsBlob);
+      
+      statsDownloadContainer.innerHTML = '';
+      const statsLink = document.createElement('a');
+      statsLink.href = statsUrl;
+      statsLink.className = 'download-btn';
+      statsLink.download = 'estatisticas_whatsapp.csv';
+      statsLink.textContent = 'Baixar Estatísticas CSV';
+      
+      statsDownloadContainer.appendChild(statsLink);
+    }
+    
+    // Gerar conteúdo CSV
+    function generateCSV(data) {
+      if (!data || !data.length) {
+        return 'ID,CLIENTE,MENSAGEM,STATUS\n';
+      }
+      
+      let csvContent = 'ID,CLIENTE,MENSAGEM,STATUS\n';
+      
+      data.forEach(row => {
+        // Decidir se exporta cliente anonimizado ou não
+        const isPhoneNumber = row.cliente.startsWith('+') || /^\d+$/.test(row.cliente);
+        const clientToExport = shouldAnonymize && isPhoneNumber ? 
+                              anonymizePhoneNumber(row.cliente) : row.cliente;
+                              
+        const escapedMessage = `"${row.mensagem.replace(/"/g, '""')}"`;
+        csvContent += `${row.id},${clientToExport},${escapedMessage},\n`;
+      });
+      
+      return csvContent;
+    }
+    
+    // Gerar CSV de estatísticas
+    function generateStatsCSV() {
+      let csvContent = 'CLIENTE,TOTAL_MENSAGENS,ENVIADAS,RECEBIDAS\n';
+      
+      Object.entries(stats.clientStats).forEach(([client, data]) => {
+        // Anonimização baseada no toggle para estatísticas
+        const isPhoneNumber = client.startsWith('+') || /^\d+$/.test(client);
+        const clientToExport = shouldAnonymize && isPhoneNumber ? 
+                              anonymizePhoneNumber(client) : client;
+                              
+        csvContent += `${clientToExport},${data.total},${data.sent},${data.received}\n`;
+      });
+      
+      return csvContent;
+    }
+    
+    // Aplicar filtros aos dados
+    function applyFilters() {
+      const selectedClient = clientFilter.value;
+      const dateFrom = dateFromFilter.value ? new Date(dateFromFilter.value) : null;
+      const dateTo = dateToFilter.value ? new Date(dateToFilter.value + 'T23:59:59') : null;
+      const keyword = keywordFilter.value.trim().toLowerCase();
+      
+      // Filtrar dados
+      filteredData = processedData.filter(row => {
+        // Filtro de cliente
+        if (selectedClient && row.cliente !== selectedClient) {
+          return false;
+        }
+        
+        // Filtro de palavra-chave
+        if (keyword && !row.mensagem.toLowerCase().includes(keyword)) {
+          return false;
+        }
+        
+        // Filtro de data (mais complexo - precisa verificar as datas nas mensagens)
+        if (dateFrom || dateTo) {
+          const lines = row.mensagem.split('\n');
+          let hasMessageInDateRange = false;
+          
+          for (const line of lines) {
+            // Formato esperado: DD/MM/AAAA HH:MM:SS
+            const dateMatch = line.match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+            if (dateMatch) {
+              const [_, day, month, year, hours, minutes, seconds] = dateMatch;
+              const messageDate = new Date(`${year}-${month}-${day}T${hours}:${minutes}:${seconds}`);
+              
+              // Verificar se está dentro do intervalo
+              if (dateFrom && messageDate < dateFrom) continue;
+              if (dateTo && messageDate > dateTo) continue;
+              
+              hasMessageInDateRange = true;
+              break;
+            }
+          }
+          
+          if (!hasMessageInDateRange) return false;
+        }
+        
+        return true;
+      });
+      
+      updatePreview();
+    }
+    
+    // Atualizar estatísticas
+    function updateStats() {
+      // Atualizar contadores
+      totalContacts.textContent = Object.keys(stats.clientStats).length;
+      totalMessages.textContent = stats.totalMessages;
+      supportMessages.textContent = stats.supportMessages;
+      clientMessages.textContent = stats.clientMessages;
+      
+      // Top clientes
+      updateTopClients();
+    }
+    
+    // Atualizar tabela de top clientes
+    function updateTopClients() {
+      // Ordenar clientes por total de mensagens
+      const sortedClients = Object.entries(stats.clientStats)
+        .sort((a, b) => b[1].total - a[1].total)
+        .slice(0, 5); // Top 5
+      
+      // Limpar tabela
+      topClientsTable.innerHTML = '';
+      
+      // Popular tabela
+      sortedClients.forEach(([client, data]) => {
+        // Anonimizar na tabela de estatísticas se for um número de telefone
+        const isPhoneNumber = client.startsWith('+') || /^\d+$/.test(client);
+        const displayClient = shouldAnonymize && isPhoneNumber ? 
+                              anonymizePhoneNumber(client) : client;
+                              
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${displayClient}</td>
+          <td>${data.total}</td>
+          <td>${data.sent}</td>
+          <td>${data.received}</td>
+        `;
+        topClientsTable.appendChild(row);
+      });
+    }
+    
+    // Mostrar mensagem de status
+    function showStatus(message, type) {
+      status.textContent = message;
+      status.className = type || '';
+    }
+  </script>
+</body>
+</html>

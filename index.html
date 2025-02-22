@@ -875,7 +875,7 @@ input:checked + .slider:before {
          <tr>
           <th>ID</th>
           <th>Cliente</th>
-          <th>Mensagem (prévia)</th>
+          <th>Mensagens (prévia)</th>
           <th>Status</th>
         </tr>
       `;
@@ -964,7 +964,7 @@ input:checked + .slider:before {
         return 'ID,CLIENTE,MENSAGEM,STATUS\n';
       }
       
-      let csvContent = 'ID,CLIENTE,MENSAGEM,STATUS\n';
+      let csvContent = 'ID,CLIENTE,MENSAGENS,STATUS\n';
       
       data.forEach(row => {
         // Decidir se exporta cliente anonimizado ou não
